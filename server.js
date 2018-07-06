@@ -1,34 +1,30 @@
-const coap    = require('coap') // or coap
+const coap    = require('coap')
     , server  = coap.createServer()
+    , async	  = require('async')
 
-var callback=function(req, res) {
-	//console.log(req);
-	var payload_buf=req.payload;
-	var payload_json = JSON.parse(payload_buf.toString());
-	console.log(payload_json);
-	console.log("calling average function");
-	var result=exposed_function[payload_json.funcName](payload_json.parameters);
-	//var result=window[payload_json.funcName](52,99);
-	console.log("average function called returns value",result);
-	res.end('Hello ' + req.url.split('/')[1] + '\n Average is'+ result);
+var callback=async function(req, res) {
+	var payload_json = JSON.parse(req.payload.toString()); //parsing request to JSON
+	var result=exposed_func[payload_json.funcName](payload_json.parameters);
+	setTimeout(function(){//accessing function
+		res.setOption('Block2', new Buffer([2]));
+		res.end(result);//sending output to client
+	}, 1500)
 };
 
 server.on('request', callback)
 
-class exposed_function{
-	
+//class for exposed functions that can be accessed by clients
+class exposed_func{
 	static findAverage(param){
-		console.log("average function is called");
-		var arr_length=param.length;
-		var sum=param.reduce((a, b) => a + b, 0)
-		var average=sum/arr_length;
-		return average;
+		return 'Average is '+(param.reduce((a, b) => a + b, 0))/param.length;
+	}
+	static sum(param){
+			//testing how delay works
+    		return 'Sum is '+param.reduce((a, b) => a + b, 0);
 	}
 }
 
-
+//servers running and listening
 server.listen(function() {
   console.log('server started');
-  console.log('Server testing');
-  //console.log("Server:average",findAverage(10,15));
 })
