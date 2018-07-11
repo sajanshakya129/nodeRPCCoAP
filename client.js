@@ -9,18 +9,21 @@ var coapConnection = { //Customised setup for coap
     method: 'GET',
     confirmable: true
 }
+
 var req = coap.request(coapConnection);
 var payload={//payload format to be sent to server, which contains function name and parameters sent
 		funcName:"sum",
 		parameters:[10,20]
 }
 req.write(JSON.stringify(payload));//sending request
+
 req.on('response', async function(res) {//on arrival of response show result
   res.pipe(process.stdout);
 })
 req.end()
 
 var req2 = coap.request(coapConnection);
+
 var payload2={//payload format to be sent to server, which contains function name and parameters sent
 		funcName:"findAverage",
 		parameters:[10,20]
